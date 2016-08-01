@@ -1,0 +1,24 @@
+STL-List
+#include<vector>
+#include<list>
+Construction:
+	(t_size),(t_size,init_num),(sam_list),(it_begin,it_end)
+Member Function:
+	begin();	end();	rbegin();	rend();
+	assign(n,num);	assign(it_begin,it_end);
+	clear();	insert(pos,num):
+	erase(it);
+	push_back();	pop_back();
+	push_front():	pop_front();
+	resize();	resize(n,num):
+	c1.swap(c2);
+	c1.merge(c2);//归并排序之有序合并
+	c1.merge(c2,comp);
+	c1.splice(c1.begin,c2);
+	remove(num);//删除list中的num元素
+	remove_if(comp);//删除指定条件的元素
+	reverse();//反转链表
+	unique();//删除重复元素
+	sort();
+
+	
