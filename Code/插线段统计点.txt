@@ -1,0 +1,100 @@
+插线段统计点数
+#1
+用一个数组num[i]代表i之后的所有点加num[i]次
+所以在插入线段时num[a-1]++  num[b]--
+之后统计sum(num,0,i)即为该点数
+//code
+#include <iostream>
+using namespace std;
+
+const int maxn = 100050;
+int num[maxn];
+int N;
+
+int main()
+{
+	while (cin >> N && N)
+	{
+		memset(num, 0, sizeof(num));
+		int a, b, s = 0;
+		for (int i = 0; i < N; i++)
+		{
+			cin >> a >> b;
+			num[a - 1]++; num[b]--;
+		}
+		int i;
+		for (i = 0; i < N - 1; i++)
+		{
+			s += num[i];
+			cout << s << " ";
+		}
+		s += num[i];
+		cout << s << endl;
+	}
+	return 0;
+}
+
+#2
+树状数组
+类似于方法1,效率稍降但可套模板
+插入线段方法：	adder(a,1);
+        	adder(b+1,-1);
+//code
+#include<iostream>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+int N;
+const int MAX=100000;
+int BIT[MAX+5];
+int aa[MAX+5];
+inline int lowbit(int n){
+    return n&(-n);
+}
+inline int op_upbit(int n){
+    return n+lowbit(n);
+}
+inline int op_downbit(int n){
+    return n-lowbit(n);
+}
+int adder(int n,int dlt){
+    BIT[n]+=dlt;
+    int nxt=op_upbit(n);
+    while(nxt<=N){
+        BIT[nxt]+=dlt;
+        nxt=op_upbit(nxt);
+    }
+    return 0;
+}
+int calc(int n){
+    int ans=0;
+    while(n>0){
+        ans+=BIT[n];
+        n=op_downbit(n);
+    }
+    return ans;
+}
+int imain(void)
+{
+    memset(BIT,0,sizeof(BIT));
+    for(int i=0;i<N;i++){
+        int a,b;
+        cin>>a>>b;
+        adder(a,1);
+        adder(b+1,-1);
+    }
+    for(int i=1;i<=N;i++){
+    	cout<<calc(i);
+    	if(i!=N) cout<<' ';
+    }
+    cout<<endl;
+    return 0;
+}
+int main(void)
+{
+    while(cin>>N,N){
+        imain();
+    }
+    return 0;
+}
+
