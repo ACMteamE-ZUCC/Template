@@ -1,6 +1,7 @@
 // 顶点、边的编号均从 0 开始
 // 邻接表储存
-//MAIN
+
+//PUBLIC PART BEGIN
 struct Edge
 {
     int from;
@@ -9,6 +10,13 @@ struct Edge
 
     Edge(int f, int t, int w):from(f), to(t), weight(w) {}
 };
+int add_edge(int f, int t, int w) {
+    edges.push_back(edge(f, t, w));
+    edges.push_back(edge(t, f, w));
+    G[f].push_back(edges.size() - 2);
+    G[t].push_back(edges.size() - 1);
+    return 0;
+}
 
 vector<int> G[__maxNodes]; /* G[i] 存储顶点 i 出发的边的编号 */
 vector<Edge> edges;
@@ -17,11 +25,11 @@ int num_nodes;
 int num_left;
 int num_right;
 int num_edges;
-
-//DFS
 int matching[__maxNodes]; /* 存储求解结果 */
 int check[__maxNodes];
+//PUBLIC PART END
 
+//DFS
 bool dfs(int u)
 {
     for (iterator_t i = G[u].begin(); i != G[u].end(); ++i) { // 对 u 的每个邻接点
@@ -52,9 +60,9 @@ int hungarian()
     }
     return ans;
 }
+//DFS END
 
-
-//BFS
+//BFS BEGIN
 queue<int> Q;
 int prev[__maxNodes];
 int Hungarian()
@@ -70,7 +78,7 @@ int Hungarian()
             bool flag = false; // 尚未找到增广路
             while (!Q.empty() && !flag) {
                 int u = Q.front();
-                for (iterator_t ix = G[u].begin(); ix != G[u].end() && !flag; ++ix) {
+                for (iterator_t ix = G[u].begin(); ix != G[u].end() && !flag; ++ix){
                     int v = edges[*ix].to;
                     if (check[v] != i) {
                         check[v] = i;
@@ -97,3 +105,4 @@ int Hungarian()
     }
     return ans;
 }
+//BFS END
