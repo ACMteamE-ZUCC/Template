@@ -1,0 +1,5 @@
+1. bits/stdc++.h
+2. goto
+3. auto
+4. test 'Presentation Error'
+5. emplace_back
