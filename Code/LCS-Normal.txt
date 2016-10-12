@@ -1,0 +1,188 @@
+/* NlogN for LCS, using LIS */  
+/* ================================================================== */  
+struct lcs_sort {  
+    int val;  
+    int pos;  
+};  
+  
+struct lcs_lis_pos {  
+    int pos_val;  
+    int pos_1;  
+};  
+  
+/* first,  sort string2 */  
+static int qsort_func(const void *s1, const void *s2)  
+{  
+    struct lcs_sort *ls1 = (struct lcs_sort *)s1, *ls2 = (struct lcs_sort *)s2;  
+  
+    if (ls1->val > ls2->val)   
+        return 1;  
+    else if (ls1->val < ls2->val)  
+        return -1;  
+    else {  
+        if (ls1->pos > ls2->pos)  
+            return -1;  
+        else  
+            return 1;  
+    }  
+}  
+  
+static void sort_lcs_string(char *string2, int n2, struct lcs_sort **ls_pp)  
+{  
+    int i = 0;  
+    struct lcs_sort *ls = NULL;  
+      
+    ls = malloc(sizeof(struct lcs_sort) * n2);  
+    for (i = 0;i < n2;i++) {  
+        ls[i].val = string2[i];  
+        ls[i].pos = i;  
+    }  
+  
+    qsort(ls, n2, sizeof(struct lcs_sort), qsort_func);  
+    *ls_pp = ls;  
+}  
+  
+  
+  
+/* second, find match list for char in string1 and construct a new sequence */  
+static int find_match_list(char ch, struct lcs_sort *ls, int l, int r, int *start)  
+{  
+    int m = 0, len, len2;  
+    int start1 = 0, start2 = 0;  
+  
+    if (l > r)  
+        return 0;  
+    else if (l == r) {  
+        if (ch == ls[l].val) {  
+            *start = r;  
+            return 1;  
+        }  
+        return 0;  
+    }  
+  
+    m = (l + r)>>1;  
+    if (ls[m].val < ch)  
+        len = find_match_list(ch, ls, m + 1, r, &start1);  
+    else if (ls[m].val > ch)  
+        len = find_match_list(ch, ls, l, m - 1, &start1);  
+    else {  
+        len = find_match_list(ch, ls, l, m - 1, &start1);  
+        len2 = find_match_list(ch, ls, m + 1, r, &start2) + 1;  
+  
+        if (len == 0)   
+            start1 = m;  
+        len += len2;  
+    }  
+    *start = start1;  
+  
+    return len;  
+}  
+  
+static int match_list_lcs(char *string1, int n1, struct lcs_sort *ls, int n2, struct lcs_lis_pos **lpos_pp)  
+{  
+    int i = 0, j = 0, k = 0, len = 0, start = 0;  
+    struct lcs_lis_pos *lpos = NULL;  
+    lpos = malloc(sizeof(struct lcs_lis_pos) * n1 * n2);  
+  
+    for (i = 0;i < n1;i++) {  
+        len = find_match_list(string1[i], ls, 0, n2 - 1, &start);  
+        for (k = 0;k < len;k++) {  
+            lpos[j].pos_val = ls[start + k].pos;  
+            lpos[j++].pos_1 = i;  
+        }  
+    }  
+      
+    *lpos_pp = lpos;  
+    return j;  
+}  
+  
+/* third, find LIS for this new sequence */  
+static inline int find_pos(int *B, int len, int value)  
+{  
+    int left = 0, right = len - 1, middle = 0;  
+  
+    while (left <= right) {  
+        /* must finding strictly increasing sub sequence */  
+        middle = (left + right)>>1;  
+        if (B[middle] < value)  
+            left = middle + 1;  
+        else  
+            right = middle - 1;  
+    }  
+      
+    return left;  
+}  
+  
+static int lis_nlogn(struct lcs_lis_pos *p, int len, int *inc_seq)  
+{  
+    int i = 0, pos = 0, curr_len = 0;  
+    int *L = NULL, *prev = NULL, *M = NULL;  
+  
+    if (len <= 0)  
+        return 0;  
+  
+    L = malloc(len * sizeof(int));  
+    M = malloc(len * sizeof(int));      
+    prev = malloc(len * sizeof(int));  
+  
+    L[0] = p[0].pos_val;  
+    M[0] = 0;  
+    prev[0] = -1;               /* the prev of the p[0] is NULL */   
+    curr_len = 1;  
+  
+    /* Caculate prev and M */  
+    for (i = 1;i < len;i++) {  
+        pos = find_pos(L, curr_len, p[i].pos_val);  
+        L[pos] = p[i].pos_val;  
+        M[pos] = i;  
+        if (pos > 0)  
+            prev[i] = M[pos - 1];  
+        else  
+            prev[i] = -1;  
+        if (pos + 1 > curr_len)  
+            curr_len++;  
+    }  
+  
+    /* Output increasing sequence */  
+    pos = M[curr_len - 1];  
+    for (i = curr_len - 1;i >= 0 && pos != -1;i--) {  
+        inc_seq[i] = p[pos].pos_1;  
+        pos = prev[pos];  
+    }  
+    return curr_len;  
+}  
+  
+  
+static int calc_lcs_using_lis(char *string1, int n1, char *string2, int n2)  
+{  
+    int *inc_seq = NULL;  
+    int list_len = 0, inc_len = 0, len = (n1 < n2) ? n1 : n2;  
+    struct lcs_sort *ls = NULL;  
+    struct lcs_lis_pos *lpos = NULL;  
+  
+    inc_seq = (int *)malloc(sizeof(int) * len);  
+  
+    /* first,  sort string2 */  
+    sort_lcs_string(string2, n2, &ls);  
+  
+    /* second, find match list for char in string1 and construct a new sequence */  
+    list_len = match_list_lcs(string1, n1, ls, n2, &lpos);  
+  
+    /* third, find LIS for this new sequence */  
+    inc_len = lis_nlogn(lpos, list_len, inc_seq);  
+  
+    /* end, get LCS */  
+#if 0  
+    int i = 0;  
+    printf("LCS is: ");  
+    for (i = 0;i < inc_len;i++) {  
+        inc_seq[i] = string1[inc_seq[i]];  
+        printf("%c ", inc_seq[i]);  
+    }  
+    printf("\r\n");  
+#endif  
+  
+    free(ls);  
+    free(lpos);      
+    return inc_len;  
+}  
