@@ -2,9 +2,7 @@
 #include <cstring>
 #include <queue>
 using namespace std;
-
 const int max_sigma = 26;
-
 class Node{
 public:
     Node* fail;
@@ -17,17 +15,14 @@ public:
         cnt = 0;
     }
 };
-
 class AC_automato : public Node{
 public:
     Node *root;
     int head, tail;
-
     void clear(){
         root = new Node();
         head = tail = 0;
     }
-
     void insert(char* s){
         int c;
         Node* p = root;
@@ -39,12 +34,10 @@ public:
         }
         p->cnt ++;
     }
-
     void build(){
         root->fail = NULL;
         queue<Node* > q;
         q.push(root);
-
         while(!q.empty()){
             Node* tmp = q.front();
             Node* p = NULL;
@@ -68,7 +61,6 @@ public:
             }
         }
     }
-
     int find(char* s){
         int cnt = 0, c;
         Node* p = root;
@@ -90,14 +82,8 @@ public:
         return cnt;
     }
 } ac;
-
 char word[1000002], text[1000002];    //word开小了，会RE！！！
-
 int main(){
-    #ifdef sxk
-        freopen("in.txt", "r", stdin);
-    #endif // sxk
-
     int n;
     while(scanf("%d", &n) == 1){
         ac.clear();

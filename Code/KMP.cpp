@@ -1,6 +1,5 @@
 //Step1:Init getFail(Target,NEXT);
 //Step2:Find find(object,Target,NEXT);
-
 #include<bits/stdc++.h>
 using namespace std;
 
