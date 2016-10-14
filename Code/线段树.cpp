@@ -255,7 +255,7 @@ int main()
   return 0;
 }
 
-//区间增减
+//区间增减-WITH LAZY
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
